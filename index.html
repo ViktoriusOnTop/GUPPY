@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuppyAI</title>
+    
+    <link rel="icon" href="https://mobile-magenta-62olxrdole.edgeone.app/Adobe%20Express%20-%20file%20(6).png" type="image/png">
+
+    <style>
+        /* --- 1. GLOBAL STYLES & RESET --- */
+        :root {
+            --primary-color: #4285f4;
+            --text-color: #bdc1c6; 
+            --heading-color: #ffffff;
+            --bg-body: #181818; 
+            --bg-light: #202124; 
+            --card-bg: #303134; 
+            --border-color: #3c4043;
+            --max-width: 960px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth; /* Enables smooth scrolling for the buttons */
+        }
+
+        body {
+            font-family: 'Roboto', 'Segoe UI', sans-serif;
+            color: var(--text-color);
+            background-color: var(--bg-body);
+            line-height: 1.6;
+            opacity: 0;
+            animation: pageLoad 0.8s ease-out forwards;
+            overflow-x: hidden;
+        }
+
+        @keyframes pageLoad {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.3s ease;
+        }
+
+        /* --- 2. NAVIGATION BAR --- */
+        header {
+            position: sticky;
+            top: 0;
+            background: #000000;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            border-bottom: 1px solid #333;
+        }
+
+        .site-branding {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .site-logo {
+            height: 32px;
+            width: auto;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .site-branding:hover .site-logo {
+            transform: scale(1.05);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .nav-item {
+            font-size: 14px;
+            font-weight: 500;
+            color: #9aa0a6;
+            padding: 8px 12px;
+            border-radius: 4px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 4px;
+            left: 50%;
+            background-color: white;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-item:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item:hover::after {
+            width: 70%;
+        }
+
+        .nav-item.active {
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-item.active::after {
+            width: 70%;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        /* --- 3. HERO SECTION (RE-ARCHITECTED) --- */
+        .hero {
+            position: relative;
+            height: 500px;
+            background-color: #202124; /* Fallback color */
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+
+        /* Layer 1: The Image */
+        .hero-bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1; /* Base Layer */
+            opacity: 1; /* Ensure visibility */
+        }
+
+        /* Layer 2: The Dark Overlay (so text is readable) */
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6));
+            z-index: 2; /* Middle Layer */
+        }
+
+        /* Layer 3: The Content (Text) */
+        .hero-content {
+            position: relative;
+            z-index: 3; /* Top Layer */
+            width: 100%;
+            padding: 50px 40px; 
+            color: white;
+            transform: translateY(30px);
+            opacity: 0;
+            animation: slideUp 1s ease-out 0.3s forwards;
+        }
+
+        @keyframes slideUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .hero-title {
+            font-size: 80px; 
+            font-weight: 800; 
+            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            letter-spacing: -2px; 
+            line-height: 1.1;
+        }
+
+        /* --- 4. CONTENT SECTIONS --- */
+        section {
+            padding: 80px 24px;
+            opacity: 0; 
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-alt {
+            background-color: var(--bg-light);
+        }
+
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: 32px;
+            color: var(--heading-color);
+            margin-bottom: 24px;
+            font-weight: 700; /* Bold Text */
+            position: relative;
+            display: inline-block;
+        }
+
+        h2::after {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 3px;
+            background: var(--primary-color);
+            margin-top: 8px;
+            border-radius: 2px;
+        }
+
+        h3 {
+            color: var(--heading-color);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: var(--text-color);
+            line-height: 1.7;
+        }
+
+        /* --- 5. GRID & CARDS --- */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+            border-color: var(--heading-color);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            background-color: #202124;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+            opacity: 0.9;
+        }
+
+        .card:hover .card-image {
+            transform: scale(1.03); 
+            opacity: 1;
+        }
+
+        .card-content {
+            padding: 0 10px 15px 10px;
+        }
+
+        .card h3 {
+            font-size: 22px;
+            color: var(--heading-color);
+            font-weight: 500;
+            margin-bottom: 8px;
+            margin-top: 0; /* Reset margin top for card headers */
+        }
+
+        .card p {
+            font-size: 15px;
+            color: #9aa0a6;
+            margin-bottom: 0;
+        }
+
+        /* --- 6. BUTTONS --- */
+        .btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 32px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-top: 15px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            text-align: center; 
+        }
+
+        .btn:hover {
+            background-color: #629bf5;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            transform: translateY(-2px);
+        }
+
+        /* --- 7. FOOTER --- */
+        footer {
+            background-color: var(--bg-light);
+            border-top: 1px solid var(--border-color);
+            padding: 60px 24px;
+            font-size: 13px;
+            color: #9aa0a6;
+        }
+
+        .footer-content {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-icon {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #5f6368;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-style: italic;
+            cursor: pointer;
+            color: #5f6368;
+            transition: all 0.2s;
+        }
+
+        .info-icon:hover {
+            border-color: var(--heading-color);
+            color: var(--heading-color);
+        }
+
+        /* --- RESPONSIVE DESIGN --- */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: absolute;
+                top: 64px;
+                left: 0;
+                width: 100%;
+                background: #000000;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 20px;
+                gap: 15px;
+                transform: translateY(-150%);
+                transition: transform 0.3s ease;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            }
+
+            .nav-links.mobile-open {
+                transform: translateY(0);
+            }
+
+            .nav-item {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero { height: 350px; } 
+            
+            .hero-title { font-size: 48px; }
+            .hero-content { padding: 30px 24px; }
+            
+            .grid-3 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="site-branding">
+            <img src="https://promising-azure-aatuja0ynr.edgeone.app/Screenshot%202026-02-07%20103115.png" alt="Site Logo" class="site-logo">
+            <span></span>
+        </div>
+        
+        <button class="mobile-menu-btn" onclick="toggleMenu()">
+            &#9776; 
+        </button>
+
+        <nav class="nav-links" id="navLinks">
+            <a href="#" class="nav-item active">Home</a>
+            <a href="#model-pro" class="nav-item">Guppy v1 Alpha</a>
+            <a href="#services" class="nav-item">Services</a>
+            <a href="#updates" class="nav-item">About us</a>
+        </nav>
+    </header>
+
+    <div class="hero">
+        
+        <img src="https://soviet-lime-adm7niaiec.edgeone.app/Screenshot%202026-02-07%20102511.png" alt="Hero Background" class="hero-bg-image">
+        
+        <div class="hero-overlay"></div>
+
+        <div class="hero-content">
+            <h1 class="hero-title">Pro 1.1</h1>
+        </div>
+    </div>
+
+    <section class="reveal-on-scroll">
+        <div class="container">
+            <h2>Our Mission - Guppy</h2>
+            <p>
+                This is Rishav and Advait here. Our goal of our A.I. is to detect cancer, and we want to 
+                make the world a better place with our AI, even if we are small creators, who said a pebble
+                can't ripple an entire pond?
+            </p>
+            
+            <a href="#updates" class="btn">Learn More</a>
+
+        </div>
+    </section>
+
+    <section id="updates" class="section-alt reveal-on-scroll">
+        <div class="container">
+            <h2>Learn More About Us - Guppy</h2>
+            
+            <div class="grid-3">
+                <div class="card">
+                    <img src="https://gimgs2.nohat.cc/thumb/f/640/business-handshake-icon-neon-glow-free-icons-rawpixel--comrawpixel6952009.jpg" alt="Update 1" class="card-image">
+                    <div class="card-content">
+                        <h3>The Creators</h3>
+                        <p>Advait and Rishav are two kids who look forward to advance in computer science and impact the world positively.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <img src="https://thoughtful-turquoise-0ea6vow9ul.edgeone.app/image%20(7).png" alt="Update 2" class="card-image">
+                    <div class="card-content">
+                        <h3>Project Alpha</h3>
+                        <p>Our project is still under rennovation and we are looking forward to improve it</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <img src="https://i0.wp.com/picjumbo.com/wp-content/uploads/beautiful-beach-free-image-after-sunset-sky-free-photo.jpeg?w=2210&quality=70" alt="Update 3" class="card-image">
+                    <div class="card-content">
+                        <h3>Our Vision</h3>
+                        <p>We look forward to helping others and making a positive impact in the world through our AI.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="model-pro" class="reveal-on-scroll">
+        <div class="container">
+            <h2>Model Pro 1.1</h2>
+            <p style="color: #666; font-style: italic;">[Content coming soon]</p>
+        </div>
+    </section>
+
+    <section id="services" class="section-alt reveal-on-scroll">
+        <div class="container">
+            <h2>Services</h2>
+            
+            <div style="margin-bottom: 40px;">
+                <h3>Contact Information</h3>
+                <p>
+                    Have questions? Reach out to us directly:<br>
+                    <strong>Phone:</strong> 742-654-6548<br>
+                    <strong>Email:</strong> rishav.dhanasekar@gmail.com
+                </p>
+            </div>
+
+            <div>
+                <h3>Questions & Answers (Q&A)</h3>
+                <p>
+                    <strong>Q: How does Guppy AI work?</strong><br>
+                    A: [Our AI uses advanced machine learning algorithms to analyze medical data and detect patterns indicative of cancer. 
+                    It is designed to assist healthcare professionals in making informed decisions. Many professionals can still make
+                    mistakes, and by our AI we can reduce these mistakes and probably try and help save lives. Even if our AI is not
+                    100% accurate, it can still be a helpful tool for doctors to use as a second opinion. Our AI is not meant to replace doctors,
+                    and please inform us if you are a insitute that wants to use this AI to help them research, so that we are able to help
+                    you and inform you how t use the AI and how it can assist you in your research.]
+                </p>
+                <p>
+                    <strong>Q: Is the service free?</strong><br>
+                    A: [Yea, the service is free to use for everyone! This is supposed to help us become better at technology, while being
+                    able to help others. There is no required payment, because this is not a business, this is just a project that we wanted to
+                    make to help others and make a positive impact in the world. We are not looking to make money, of course, since we are 
+                    kids and I can't tell the difference between investing and stocks. Completely free to use! Its just that please inform 
+                    or contact us if you are a insitute or any type of organization that is using our AI to detect melanoma cancer. We do not
+                    want to risk the lives of others, and we can help adapt the AI to your liking if you want to use it.]
+                </p>
+                <p>
+                    <strong>Q: Why did you want to make this?</strong><br>
+                    A: [We wanted to make this project to help people and make a positive impact in the world through our AI. Basically,
+                    we wanted to be kids who at this age who is able to do something that barely anyone else can do at this age.]
+                </p>
+                <p>
+                    <strong>Q: Who are the authors of this project?</strong><br>
+                    A: [Advait and Rishav are the authors and rightful owners of this project. Any actions that are taken to copy us or
+                    steal from us will be reported and legal actions will be taken. We have worked hard on this project, and therefore
+                    we will not allow anyone to take credit for our work.]
+                
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div>
+                <a href="#" style="margin-right: 15px;">Home</a>
+                <a href="#" style="margin-right: 15px;">Contact</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+            <div class="info-icon">i</div>
+        </div>
+        <div style="max-width: 960px; margin: 10px auto 0; text-align: left;">
+            Report Abuse | Print Page | Powered by <b>Rishav and Advait</b>
+        </div>
+    </footer>
+
+    <script>
+        // 1. Mobile Menu Toggle
+        function toggleMenu() {
+            const nav = document.getElementById('navLinks');
+            nav.classList.toggle('mobile-open');
+        }
+
+        // 2. Scroll Animation (Intersection Observer)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1 // Trigger when 10% of the section is visible
+        });
+
+        // Target all sections with the class 'reveal-on-scroll'
+        document.querySelectorAll('.reveal-on-scroll').forEach((section) => {
+            observer.observe(section);
+        });
+    </script>
+
+</body>
+</html>
