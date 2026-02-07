@@ -4,6 +4,8 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
 from torchvision import datasets, transforms
 
+#bad attempt at exporting as ONNX
+
 sorted_set = Path("sorted")
 
 if torch.cuda.is_available():
